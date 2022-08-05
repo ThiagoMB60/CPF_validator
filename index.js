@@ -1,4 +1,4 @@
-function validaCpf(cpf) {
+function ValidaCpf(cpf) {
   Object.defineProperty(this, 'cleanCpf', {
     enumerable: true,
     get: function () {
@@ -7,26 +7,37 @@ function validaCpf(cpf) {
   });
 }
 
-validaCpf.prototype.valida = function () {
-  if (!this.cleanCpf || this.cleanCpf.length !== 11) return false;
+ValidaCpf.prototype.valida = function () {
+  // param 1: validacao de valor a varivel se n]ap é nula, vazia ou undefined
+  // param 3: se o cpf sem a mascara tem 11 digitos
+  // param 4: 
+  if (!this.cleanCpf || this.cleanCpf.length !== 11 || this.isSequence()) return false;
 
   const cpfParcial = this.cleanCpf.slice(0, -2);
-  const digito1 = this.criaDigito(cpfParcial);
-  return true;
+  const digit1 = this.criaDigito(cpfParcial);
+  const digit2 = this.criaDigito(cpfParcial + digit1);
+
+  const newCpf = cpfParcial + digit1 + digit2;
+  return newCpf === this.cleanCpf;
 }
 
-validaCpf.prototype.criaDigito = function (cpfParcial) {
+ValidaCpf.prototype.criaDigito = function (cpfParcial) {
   const arrayDigits = Array.from(cpfParcial)
   let regressivo = arrayDigits.length + 1;
-  const digito = arrayDigits.reduce((acumulador, value) => {
+  const total = arrayDigits.reduce((acumulador, value) => {
     acumulador += (regressivo * Number(value))
     regressivo--;
     return acumulador;
   }, 0)
-  console.log(digito)
+
+  const digito = 11 - (total % 11);
+  return digito > 9 ? '0' : String(digito);
 }
 
+ValidaCpf.prototype.isSequence = function () {
+  return (this.cleanCpf[0].repeat(this.cleanCpf.length) === this.cleanCpf);
+}
 
-const cpfTeste = '126.200.796-83';
-const cpf = new validaCpf(cpfTeste);
+const cpfTeste = '948.785.990-06';
+const cpf = new ValidaCpf(cpfTeste);
 console.log(cpf.valida());
